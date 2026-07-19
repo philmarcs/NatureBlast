@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
+import '../models/game_models.dart';
 import '../theme/app_theme.dart';
+import 'draggable_piece.dart';
 
 class PieceTray extends StatelessWidget {
-  const PieceTray({super.key});
+  const PieceTray({super.key, required this.pieces, required this.onPieceDragStarted});
+
+  final List<PieceModel> pieces;
+  final ValueChanged<PieceModel> onPieceDragStarted;
 
   @override
   Widget build(BuildContext context) {
@@ -18,95 +23,16 @@ class PieceTray extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Expanded(
-            child: _ShapeCard(
-              label: 'L',
-              cells: const [
-                [1, 0],
-                [1, 0],
-                [1, 1],
-              ],
+          for (int index = 0; index < pieces.length; index++)
+            Expanded(
+              child: Padding(
+                padding: EdgeInsets.only(right: index < pieces.length - 1 ? 6 : 0),
+                child: DraggablePiece(
+                  piece: pieces[index],
+                  onDragStarted: () => onPieceDragStarted(pieces[index]),
+                ),
+              ),
             ),
-          ),
-          const SizedBox(width: 6),
-          Expanded(
-            child: _ShapeCard(
-              label: 'T',
-              cells: const [
-                [1, 1, 1],
-                [0, 1, 0],
-              ],
-            ),
-          ),
-          const SizedBox(width: 6),
-          Expanded(
-            child: _ShapeCard(
-              label: 'Z',
-              cells: const [
-                [1, 1, 0],
-                [0, 1, 1],
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _ShapeCard extends StatelessWidget {
-  const _ShapeCard({required this.label, required this.cells});
-
-  final String label;
-  final List<List<int>> cells;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 4),
-      decoration: BoxDecoration(
-        color: AppTheme.woodlandBackground,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            label,
-            style: Theme.of(context).textTheme.labelSmall,
-          ),
-          const SizedBox(height: 4),
-          FittedBox(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                for (final row in cells)
-                  Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      for (final cell in row)
-                        Padding(
-                          padding: const EdgeInsets.all(1.5),
-                          child: Container(
-                            width: 7,
-                            height: 7,
-                            decoration: BoxDecoration(
-                              color: cell == 1
-                                  ? AppTheme.woodlandAccent
-                                  : AppTheme.woodlandBackground,
-                              borderRadius: BorderRadius.circular(2.5),
-                              border: Border.all(
-                                color: AppTheme.woodlandAccentDark.withValues(alpha: 0.2),
-                                width: 1,
-                              ),
-                            ),
-                          ),
-                        ),
-                    ],
-                  ),
-              ],
-            ),
-          ),
         ],
       ),
     );

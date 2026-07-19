@@ -1,10 +1,16 @@
 import 'package:flutter/material.dart';
+import '../models/game_models.dart';
 import '../theme/app_theme.dart';
+import 'board_cell.dart';
 
 class GameBoard extends StatelessWidget {
-  const GameBoard({super.key, this.size});
+  const GameBoard({super.key, this.size, required this.boardState, required this.activePiece, required this.ghostOrigin, required this.isValidPlacement});
 
   final double? size;
+  final GameBoardState boardState;
+  final PieceModel? activePiece;
+  final BoardCoordinate? ghostOrigin;
+  final bool isValidPlacement;
 
   @override
   Widget build(BuildContext context) {
@@ -37,16 +43,19 @@ class GameBoard extends StatelessWidget {
           crossAxisSpacing: 4,
           mainAxisSpacing: 4,
         ),
-        itemBuilder: (_, _) {
-          return Container(
-            decoration: BoxDecoration(
-              color: AppTheme.woodlandCell,
-              borderRadius: BorderRadius.circular(AppTheme.tileRadius),
-              border: Border.all(
-                color: AppTheme.woodlandCellBorder.withValues(alpha: 0.8),
-                width: 1,
-              ),
-            ),
+        itemBuilder: (context, index) {
+          final row = index ~/ 8;
+          final col = index % 8;
+          final coordinate = BoardCoordinate(row, col);
+          final isOccupied = boardState.isCellOccupied(coordinate);
+          final isGhost = activePiece != null &&
+              ghostOrigin != null &&
+              activePiece!.blocks.any((block) => coordinate == ghostOrigin!.translated(block.row, block.col));
+
+          return BoardCell(
+            isOccupied: isOccupied,
+            isGhost: isGhost,
+            isValid: isValidPlacement,
           );
         },
       ),
